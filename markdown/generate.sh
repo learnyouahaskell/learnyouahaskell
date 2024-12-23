@@ -10,8 +10,8 @@ cp source_md/chapters_head.md $chapterfile
 for i in ${!filename[@]}
 do
     sourcemd=source_md/${filename[$i]}.md
-    
-    title[$i]=$(sed -n '/^# /s/# //p;' $sourcemd | sed 's/{.*//' | sed 's/ *$//g')
+
+    title[$i]=$(sed -n '/^# /s/# //p;' $sourcemd | sed 's/{.*//; s/ *$//g')
 
     chnum=$(($i + 1))
     if [[ $chnum -ge 10 ]];
@@ -21,11 +21,11 @@ do
         sp="  "
     fi
 
-    sed -n '/^#\{1,2\} /p' $sourcemd \
-        | sed "s/^#  *\(.*[^ ]\) *{.*/$chnum.$sp[\1](${filename[$i]}.html)/" \
-        | sed "s/^#  *\(.*[^ ]\) */$chnum.$sp[\1](${filename[$i]}.html)/" \
-        | sed "s/^##  *\(.*[^ ]\) *{ *#\(.*\)}/    * [\1](${filename[$i]}.html\#\2)/" \
-        >>$chapterfile
+    grep '^#\{1,2\} ' $sourcemd \
+        | sed "s/^#  *\(.*[^ ]\) *{.*/$chnum.$sp[\1](${filename[$i]}.html)/;
+               s/^#  *\(.*[^ ]\) */$chnum.$sp[\1](${filename[$i]}.html)/;
+               s/^##  *\(.*[^ ]\) *{ *#\(.*\)}/    * [\1](${filename[$i]}.html\#\2)/" \
+        >> $chapterfile
 done
 
 for i in ${!filename[@]}
@@ -48,13 +48,13 @@ do
         next_title="${title[$next]}"
         next_filename=${filename[$next]}
     fi
-    
+
     pandoc -d config/pandoc-defaults.yml --template=config/template.html \
         -V footdiv=true -V title="${title[$i]}" \
         --metadata title="${title[$i]}$titlesuffix" \
         -V prev_title="$prev_title" -V prev_filename=$prev_filename \
         -V next_title="$next_title" -V next_filename=$next_filename \
-        -o generated_html/${filename[$i]}.html source_md/${filename[$i]}.md   
+        -o generated_html/${filename[$i]}.html source_md/${filename[$i]}.md
 done
 
 cat source_md/chapters_foot.md >>$chapterfile
