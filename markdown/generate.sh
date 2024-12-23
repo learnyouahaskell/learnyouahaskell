@@ -13,8 +13,8 @@ do
 
     title[$i]=$(sed -n '/^# /s/# //p;' $sourcemd | sed 's/{.*//; s/ *$//g')
 
-    chnum=$(($i + 1))
-    if [[ $chnum -ge 10 ]];
+    chnum=$((i + 1))
+    if ((chnum >= 10))
     then
         sp=" "
     else
@@ -30,7 +30,7 @@ done
 
 for i in ${!filename[@]}
 do
-    if (($i <= 0))
+    if ((i <= 0))
     then
         prev_title=
         prev_filename=
@@ -39,7 +39,7 @@ do
         prev_title="${title[$prev]}"
         prev_filename=${filename[$prev]}
     fi
-    if (($i >= ${#filename[@]} - 1))
+    if ((i >= ${#filename[@]} - 1))
     then
         next_title=
         next_filename=
